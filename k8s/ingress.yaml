@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: notes-app-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: notesapp.local # Change this to your domain or remove the 'host' section to apply to all traffic
+    http:
+      paths:
+      # Backend API routing
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: notes-backend-svc
+            port:
+              number: 3001
+      
+      # Frontend routing
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: notes-frontend-svc
+            port:
+              number: 80
