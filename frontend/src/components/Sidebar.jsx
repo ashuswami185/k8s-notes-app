@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HiOutlinePlus, HiOutlineSearch, HiOutlineArchive, HiOutlineDocumentText } from 'react-icons/hi';
+import { HiOutlinePlus, HiOutlineSearch, HiOutlineArchive, HiOutlineDocumentText, HiOutlineSun, HiOutlineMoon } from 'react-icons/hi';
 import { BsPin, BsPinFill } from 'react-icons/bs';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -12,6 +12,8 @@ export default function Sidebar({
   onSearchChange,
   showArchived,
   onToggleArchived,
+  darkMode,
+  onToggleDarkMode,
 }) {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
@@ -55,9 +57,14 @@ export default function Sidebar({
           <HiOutlineDocumentText className="logo-icon" />
           Notes
         </h1>
-        <button className="btn-new-note" onClick={onNewNote} title="New note">
-          <HiOutlinePlus />
-        </button>
+        <div className="header-actions">
+          <button className="btn-icon" onClick={onToggleDarkMode} title={darkMode ? 'Light mode' : 'Dark mode'}>
+            {darkMode ? <HiOutlineSun /> : <HiOutlineMoon />}
+          </button>
+          <button className="btn-new-note" onClick={onNewNote} title="New note">
+            <HiOutlinePlus />
+          </button>
+        </div>
       </div>
 
       <div className={`search-container ${isSearchFocused ? 'focused' : ''}`}>

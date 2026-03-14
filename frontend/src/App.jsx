@@ -14,7 +14,25 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('notes-dark-mode');
+    if (saved !== null) return JSON.parse(saved);
+    if (typeof window !== 'undefined') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  });
+
   const debouncedSearch = useDebounce(searchQuery, 300);
+
+  useEffect(() => {
+    localStorage.setItem('notes-dark-mode', JSON.stringify(darkMode));
+    if (darkMode) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+  }, [darkMode]);
 
   // Load notes
   const loadNotes = useCallback(async () => {
@@ -104,7 +122,7 @@ function App() {
         toastOptions={{
           duration: 2000,
           style: {
-            background: '#1a1a2e',
+            background: darkMode ? '#1e293b' : '#1a1a2e',
             color: '#fff',
             borderRadius: '10px',
             fontSize: '14px',
@@ -122,6 +140,8 @@ function App() {
             onSearchChange={setSearchQuery}
             showArchived={showArchived}
             onToggleArchived={setShowArchived}
+            darkMode={darkMode}
+            onToggleDarkMode={() => setDarkMode(!darkMode)}
           />
         )}
         <main className="main-content">
