@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HiOutlinePlus, HiOutlineSearch, HiOutlineArchive, HiOutlineDocumentText, HiOutlineSun, HiOutlineMoon } from 'react-icons/hi';
+import { HiOutlinePlus, HiOutlineSearch, HiOutlineArchive, HiOutlineDocumentText, HiOutlineSun, HiOutlineMoon, HiOutlineLogout } from 'react-icons/hi';
 import { BsPin, BsPinFill } from 'react-icons/bs';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -14,6 +14,8 @@ export default function Sidebar({
   onToggleArchived,
   darkMode,
   onToggleDarkMode,
+  onLogout,
+  user
 }) {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
@@ -46,7 +48,14 @@ export default function Sidebar({
         {note.is_pinned && <BsPinFill className="pin-indicator" />}
       </div>
       <p className="sidebar-note-preview">{getPreview(note.content)}</p>
-      <span className="sidebar-note-date">{formatDate(note.updated_at)}</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span className="sidebar-note-date">{formatDate(note.updated_at)}</span>
+        {note.author_name && (
+          <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: 500 }}>
+            by {note.author_name}
+          </span>
+        )}
+      </div>
     </button>
   );
 
@@ -58,6 +67,9 @@ export default function Sidebar({
           Notes
         </h1>
         <div className="header-actions">
+          <button className="btn-icon" onClick={onLogout} title="Logout" style={{ color: 'var(--danger)' }}>
+            <HiOutlineLogout />
+          </button>
           <button className="btn-icon" onClick={onToggleDarkMode} title={darkMode ? 'Light mode' : 'Dark mode'}>
             {darkMode ? <HiOutlineSun /> : <HiOutlineMoon />}
           </button>

@@ -115,6 +115,11 @@ export default function NoteEditor({ note, onUpdate, onDelete }) {
         <div className="editor-meta">
           <HiOutlineClock className="meta-icon" />
           <span className="meta-date">{formatDate(note.updated_at)}</span>
+          {note.author_name && (
+            <span style={{ fontSize: '11px', fontWeight: 500, marginRight: '12px', background: 'var(--bg-secondary)', padding: '3px 8px', borderRadius: '4px' }}>
+              Written by {note.author_name}
+            </span>
+          )}
           <span className={`save-indicator ${saveStatus}`}>
             {saveStatus === 'saving'
               ? 'Saving...'

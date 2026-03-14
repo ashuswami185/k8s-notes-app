@@ -2,8 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import Sidebar from './components/Sidebar';
 import NoteEditor from './components/NoteEditor';
+import Login from './components/Login';
 import { fetchNotes, createNote, updateNote, deleteNote } from './api/notes';
 import { useDebounce } from './hooks/useDebounce';
+import { HiOutlineChevronLeft, HiOutlineMenu } from 'react-icons/hi';
 import './App.css';
 
 function App() {
@@ -13,6 +15,10 @@ function App() {
   const [showArchived, setShowArchived] = useState(false);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('notes-user');
+    return saved ? JSON.parse(saved) : null;
+  });
 
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('notes-dark-mode');
@@ -36,15 +42,21 @@ function App() {
 
   // Load notes
   const loadNotes = useCallback(async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     try {
       const data = await fetchNotes(debouncedSearch, showArchived);
       setNotes(data);
     } catch (err) {
-      toast.error('Failed to load notes');
+      if (err.message !== 'Unauthorized') {
+        toast.error('Failed to load notes');
+      }
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, showArchived]);
+  }, [debouncedSearch, showArchived, user]);
 
   useEffect(() => {
     loadNotes();
@@ -115,6 +127,28 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyboard);
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem('notes-auth-token');
+    localStorage.removeItem('notes-user');
+    setUser(null);
+    setNotes([]);
+    setActiveNoteId(null);
+  };
+
+  if (!user) {
+    return (
+      <>
+        <Toaster position="bottom-right" toastOptions={{
+          style: {
+            background: darkMode ? '#1e293b' : '#1a1a2e',
+            color: '#fff', borderRadius: '10px', fontSize: '14px',
+          }
+        }} />
+        <Login onLoginComplete={setUser} />
+      </>
+    );
+  }
+
   return (
     <div className="app">
       <Toaster
@@ -142,6 +176,8 @@ function App() {
             onToggleArchived={setShowArchived}
             darkMode={darkMode}
             onToggleDarkMode={() => setDarkMode(!darkMode)}
+            onLogout={handleLogout}
+            user={user}
           />
         )}
         <main className="main-content">
@@ -150,7 +186,7 @@ function App() {
             onClick={() => setSidebarOpen(!sidebarOpen)}
             title={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
           >
-            {sidebarOpen ? '◀' : '▶'}
+            {sidebarOpen ? <HiOutlineChevronLeft /> : <HiOutlineMenu />}
           </button>
           <NoteEditor
             note={activeNote}
